@@ -60,12 +60,21 @@ module.exports.updateUser = (req, res) => {
   const { id } = req.query;
   const data = req.body;
 
+  if (!id) {
+    return res.status(400).json({ status: false, message: `Query "id" not found!` });
+  }
+
   const rawUData = fs.readFileSync(userFile);
   const users = JSON.parse(rawUData);
+
+  let count = 0;
 
   const result = users.map(user => {
 
     if (user.id === id) {
+
+      count += 1;
+
       data?.gender ? user.gender = data.gender : null;
       data?.name ? user.name = data.name : null;
       data?.contact ? user.contact = data.contact : null;
@@ -76,9 +85,14 @@ module.exports.updateUser = (req, res) => {
     return user;
   });
 
-  fs.writeFileSync(userFile, JSON.stringify(result));
 
-  res.status(200).json({ status: true, message: 'User update successful!' });
+  if (count > 0) {
+    fs.writeFileSync(userFile, JSON.stringify(result));
+    res.status(200).json({ status: true, message: 'User update successful!' });
+  }
+  else {
+    res.status(400).json({ status: false, message: 'User id not valid!' });
+  }
 }
 
 module.exports.updateBulkUser = (req, res) => { }
