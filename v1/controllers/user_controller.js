@@ -97,4 +97,24 @@ module.exports.updateUser = (req, res) => {
 
 module.exports.updateBulkUser = (req, res) => { }
 
-module.exports.deleteUser = (req, res) => { }
+module.exports.deleteUser = (req, res) => {
+
+  const { id } = req.query;
+
+  if (!id) {
+    return res.status(400).json({ status: false, message: `Query "id" not found!` });
+  }
+
+  const rawUData = fs.readFileSync(userFile);
+  const users = JSON.parse(rawUData);
+
+  const result = users.filter(user => user.id !== id);
+
+  if (users.length > result.length) {
+    fs.writeFileSync(userFile, JSON.stringify(result));
+    res.status(200).json({ status: true, message: 'User delete successful!' });
+  }
+  else {
+    res.status(400).json({ status: false, message: 'User id not valid!' });
+  }
+}
