@@ -12,7 +12,7 @@ module.exports.getRendomUser = (req, res) => {
   const shuffled = users.sort(() => 0.5 - Math.random()).slice(0, 1)[0];
 
 
-  res.json(shuffled);
+  res.status(200).json({ status: true, data: shuffled });
 }
 
 module.exports.getAllUser = (req, res) => {
@@ -22,7 +22,7 @@ module.exports.getAllUser = (req, res) => {
   const rawData = fs.readFileSync(userFile);
   const users = JSON.parse(rawData);
 
-  res.json(users.slice(0, limit));
+  res.status(200).json({ status: true, data: users.slice(0, limit) });
 }
 
 module.exports.saveUser = (req, res) => {
@@ -52,10 +52,34 @@ module.exports.saveUser = (req, res) => {
 
   fs.writeFileSync(userFile, JSON.stringify(users));
 
-  res.status(200).json({ status: true, message: 'Data save successful!' });
+  res.status(200).json({ status: true, message: 'User save successful!' });
 }
 
-module.exports.updateUser = (req, res) => { }
+module.exports.updateUser = (req, res) => {
+
+  const { id } = req.query;
+  const data = req.body;
+
+  const rawUData = fs.readFileSync(userFile);
+  const users = JSON.parse(rawUData);
+
+  const result = users.map(user => {
+
+    if (user.id === id) {
+      data?.gender ? user.gender = data.gender : null;
+      data?.name ? user.name = data.name : null;
+      data?.contact ? user.contact = data.contact : null;
+      data?.address ? user.address = data.address : null;
+      data?.photoUrl ? user.photoUrl = data.photoUrl : null;
+    }
+
+    return user;
+  });
+
+  fs.writeFileSync(userFile, JSON.stringify(result));
+
+  res.status(200).json({ status: true, message: 'User update successful!' });
+}
 
 module.exports.updateBulkUser = (req, res) => { }
 
