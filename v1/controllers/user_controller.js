@@ -95,7 +95,46 @@ module.exports.updateUser = (req, res) => {
   }
 }
 
-module.exports.updateBulkUser = (req, res) => { }
+module.exports.updateBulkUser = (req, res) => {
+
+  const data = req.body;
+
+  if (!Array.isArray(data)) {
+    return res.status(400).json({ status: false, message: `Data should be an array of object with id!` });
+  }
+
+  const rawUData = fs.readFileSync(userFile);
+  const users = JSON.parse(rawUData);
+
+  let count = 0;
+
+  const result = users.map(user => {
+    const record = data?.filter(item => item.id === user.id);
+
+    if (record.length > 0) {
+      count += 1;
+
+      record[0]?.gender ? user.gender = record[0].gender : null;
+      record[0]?.name ? user.name = record[0].name : null;
+      record[0]?.contact ? user.contact = record[0].contact : null;
+      record[0]?.address ? user.address = record[0].address : null;
+      record[0]?.photoUrl ? user.photoUrl = record[0].photoUrl : null;
+    }
+
+    return user;
+  });
+
+
+  if (count > 0) {
+    fs.writeFileSync(userFile, JSON.stringify(result));
+
+    const msg = `${count} user update successful!${data.length !== count ? ` ${data.length - count} user id not valid!` : ''}`;
+    res.status(200).json({ status: true, message: msg });
+  }
+  else {
+    res.status(400).json({ status: false, message: 'User id not valid!' });
+  }
+}
 
 module.exports.deleteUser = (req, res) => {
 
