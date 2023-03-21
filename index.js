@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const userHandler = require('./v1/routes/user_handler');
+const { errorHandler } = require('./middlewares/error_handler');
 
 
 const app = express();
@@ -24,6 +25,10 @@ app.get('/', (req, res) => {
 app.all('*', (req, res) => {
   res.json({ status: false, msg: 'No routes found!' });
 });
+
+
+// error handler
+app.use(errorHandler);
 
 
 // app listen

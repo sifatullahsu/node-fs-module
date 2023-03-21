@@ -1,8 +1,8 @@
 const crypto = require("crypto");
 const fs = require('fs');
+const path = require('path');
 
-const userFile = __dirname + '../../../data/users.json';
-
+const userFile = path.join(process.cwd(), './data/users.json');
 
 module.exports.getRendomUser = (req, res) => {
 
